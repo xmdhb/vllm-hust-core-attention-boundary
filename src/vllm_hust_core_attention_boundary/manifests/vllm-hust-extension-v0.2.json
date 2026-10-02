@@ -1,0 +1,48 @@
+{
+  "schema_version": "0.2-experimental",
+  "extension_id": "org.vllm-hust.core-attention-boundary",
+  "extension_version": "0.1.0.dev0",
+  "kind": "in_process_plugin",
+  "host": {
+    "provider": "vllm",
+    "name": "vllm",
+    "version_range": ">=0.23,<0.24"
+  },
+  "runtime": {
+    "type": "python",
+    "process_scope": "vllm-processes",
+    "isolation": "trusted_in_process"
+  },
+  "lifecycle_owner": "vllm",
+  "protocols": [
+    {"name": "vllm.general_plugins", "version_range": null}
+  ],
+  "implementation": [
+    {
+      "type": "python_entry_point",
+      "group": "vllm.general_plugins",
+      "name": "core_attention_boundary"
+    }
+  ],
+  "requires_services": [],
+  "components": [],
+  "activation": {
+    "entry_points": [
+      {"group": "vllm.general_plugins", "name": "core_attention_boundary"}
+    ],
+    "environment": {
+      "VLLM_HUST_CORE_ATTENTION_BOUNDARY_ENABLE": "0",
+      "VLLM_HUST_CORE_ATTENTION_BOUNDARY_KILL_SWITCH": "0",
+      "VLLM_HUST_CORE_ATTENTION_BOUNDARY_EVIDENCE": "0"
+    },
+    "additional_config": {
+      "feature_id": "OP02",
+      "feature_slug": "core-attention-boundary",
+      "legacy_feature_name": "Core #41 decode/extend/prefill attention boundary",
+      "admission_status": "ported_cpu_validated_npu_smoke_runtime_blocked",
+      "source_core": "bcf2be96120005e9aea171927f85055a6a5c0cf6",
+      "adapted_host_core": "0fc695fc6d1d82e9a5ac6835ac8e4e1c83703665",
+      "evidence_ids": []
+    }
+  }
+}

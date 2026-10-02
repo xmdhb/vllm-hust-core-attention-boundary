@@ -1,6 +1,7 @@
 # OP02 — Core 注意力边界计算
 
-独立包名：`vllm-hust-op02-core-attention-boundary`
+公开包名：`vllm-hust-core-attention-boundary`
+内部编号：`OP02`
 
 GitHub 仓库：`xmdhb/vllm-hust-core-attention-boundary`
 
@@ -9,10 +10,10 @@ GitHub 仓库：`xmdhb/vllm-hust-core-attention-boundary`
 启用变量：
 
 ```bash
-export VLLM_HUST_OP02_CORE_ATTENTION_BOUNDARY_ENABLE=1
-export VLLM_HUST_OP02_CORE_ATTENTION_BOUNDARY_EVIDENCE=1
+export VLLM_HUST_CORE_ATTENTION_BOUNDARY_ENABLE=1
+export VLLM_HUST_CORE_ATTENTION_BOUNDARY_EVIDENCE=1
 ```
 
-默认关闭，`VLLM_HUST_OP02_CORE_ATTENTION_BOUNDARY_KILL_SWITCH=1` 优先级最高。
+默认关闭，`VLLM_HUST_CORE_ATTENTION_BOUNDARY_KILL_SWITCH=1` 优先级最高。
 
 打包：在本目录执行 `python3 -m build --wheel`。测试：`PYTHONPATH=src python3 -m pytest -q tests`。

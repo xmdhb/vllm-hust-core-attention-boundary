@@ -2,7 +2,7 @@ import itertools
 
 import torch
 
-from vllm_hust_op02_core_attention_boundary.boundary import (
+from vllm_hust_core_attention_boundary.boundary import (
     split_decode_extend_prefill_boundary,
     split_decode_prefill_boundary,
 )

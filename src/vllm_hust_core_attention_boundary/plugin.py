@@ -13,10 +13,10 @@ from typing import Any
 
 from . import boundary
 
-ENABLE_ENV = "VLLM_HUST_OP02_CORE_ATTENTION_BOUNDARY_ENABLE"
-KILL_SWITCH_ENV = "VLLM_HUST_OP02_CORE_ATTENTION_BOUNDARY_KILL_SWITCH"
-EVIDENCE_ENV = "VLLM_HUST_OP02_CORE_ATTENTION_BOUNDARY_EVIDENCE"
-PATCH_MARKER = "__vllm_hust_op02_core_attention_boundary__"
+ENABLE_ENV = "VLLM_HUST_CORE_ATTENTION_BOUNDARY_ENABLE"
+KILL_SWITCH_ENV = "VLLM_HUST_CORE_ATTENTION_BOUNDARY_KILL_SWITCH"
+EVIDENCE_ENV = "VLLM_HUST_CORE_ATTENTION_BOUNDARY_EVIDENCE"
+PATCH_MARKER = "__vllm_hust_core_attention_boundary__"
 _seen: set[str] = set()
 _lock = threading.Lock()
 
@@ -55,7 +55,7 @@ def _replace(old: Callable[..., Any], new: Callable[..., Any]) -> None:
 def _check_host(module: Any, name: str) -> None:
     function = getattr(module, name, None)
     if not callable(function):
-        raise RuntimeError(f"OP02 Core boundary host function is missing: {name}")
+        raise RuntimeError(f"Core boundary host function is missing: {name}")
     if getattr(function, PATCH_MARKER, False):
         return
     source = inspect.getsource(function)
@@ -67,7 +67,7 @@ def _check_host(module: Any, name: str) -> None:
             "_split_decode_extend_prefill_boundary",
         )
     ):
-        raise RuntimeError(f"OP02 Core boundary host source does not match: {name}")
+        raise RuntimeError(f"Core boundary host source does not match: {name}")
 
 
 def register() -> None:
@@ -75,7 +75,7 @@ def register() -> None:
         return
     version = importlib.metadata.version("vllm")
     if not version.startswith("0.23."):
-        raise RuntimeError(f"OP02 Core boundary requires vLLM 0.23.x, got {version}")
+        raise RuntimeError(f"Core boundary requires vLLM 0.23.x, got {version}")
     core = importlib.import_module("vllm.v1.attention.backends.utils")
     _check_host(core, "split_decodes_prefills_and_extends")
     _check_host(core, "split_decodes_and_prefills")
