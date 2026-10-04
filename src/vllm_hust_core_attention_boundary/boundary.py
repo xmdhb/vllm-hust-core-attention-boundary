@@ -6,13 +6,21 @@ from collections.abc import Callable
 from types import ModuleType
 from typing import Any
 
-import torch
-import torch.nn.functional as F
 
+def _first_true_index(mask: Any) -> int:
+    try:
+        size = int(mask.numel())
+    except AttributeError:
+        size = len(mask)
+    if size == 0:
+        return 0
 
-def _first_true_index(mask: torch.Tensor) -> torch.Tensor:
-    counts = torch.cumsum(mask.to(torch.int64), dim=0)
-    return torch.searchsorted(counts, counts.new_tensor(1))
+    for index in range(size):
+        value = mask[index]
+        item = getattr(value, "item", None)
+        if bool(item() if callable(item) else value):
+            return index
+    return size
 
 
 def split_decode_prefill_boundary(
@@ -27,6 +35,8 @@ def split_decode_prefill_boundary(
     is_prefilling: torch.Tensor | None = None,
     treat_short_extends_as_decodes: bool = True,
 ) -> tuple[int, int, int, int]:
+    import torch
+
     if num_reqs == 0:
         return 0, 0, 0, 0
     if (
@@ -67,6 +77,8 @@ def split_decode_prefill_boundary(
             raise AssertionError("is_prefilling metadata is required")
         is_prefilling = is_prefilling[:num_reqs].to(query_start_loc.device)
         if is_prefilling.shape[0] < num_reqs:
+            import torch.nn.functional as F
+
             is_prefilling = F.pad(
                 is_prefilling,
                 (0, num_reqs - is_prefilling.shape[0]),
@@ -74,7 +86,11 @@ def split_decode_prefill_boundary(
             )
         is_prefill |= is_prefilling
 
-    first_prefill = _first_true_index(is_prefill)
+    first_prefill = torch.tensor(
+        _first_true_index(is_prefill),
+        dtype=torch.int64,
+        device=query_start_loc.device,
+    )
     num_reqs_t = first_prefill.new_tensor(num_reqs)
     num_tokens_t = torch.tensor(
         num_tokens, dtype=torch.int64, device=query_start_loc.device
@@ -101,6 +117,8 @@ def split_decode_extend_prefill_boundary(
     max_query_len: int,
     decode_threshold: int = 1,
 ) -> tuple[int, int, int, int, int, int]:
+    import torch
+
     if num_reqs == 0:
         return 0, 0, 0, 0, 0, 0
     if max_query_len <= decode_threshold:
@@ -114,8 +132,16 @@ def split_decode_extend_prefill_boundary(
 
     is_extend = query_lens > decode_threshold
     is_prefill = (seq_lens == query_lens) & is_extend
-    first_extend = _first_true_index(is_extend)
-    first_prefill = _first_true_index(is_prefill)
+    first_extend = torch.tensor(
+        _first_true_index(is_extend),
+        dtype=torch.int64,
+        device=query_start_loc.device,
+    )
+    first_prefill = torch.tensor(
+        _first_true_index(is_prefill),
+        dtype=torch.int64,
+        device=query_start_loc.device,
+    )
     reqs = first_extend.new_tensor(num_reqs)
     tokens = torch.tensor(num_tokens, dtype=torch.int64, device=query_start_loc.device)
     decode_tokens = torch.where(

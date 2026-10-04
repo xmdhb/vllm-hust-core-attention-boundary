@@ -5,7 +5,7 @@
 
 GitHub 仓库：`xmdhb/vllm-hust-core-attention-boundary`
 
-对应 Core #41：用累计计数和 `searchsorted` 计算 decode/extend/prefill 边界。
+对应 Core #41：计算 decode/extend/prefill 边界；边界索引辅助函数在导入阶段不依赖 `torch`，运行时再使用张量完成边界和 token 数计算。
 
 启用变量：
 

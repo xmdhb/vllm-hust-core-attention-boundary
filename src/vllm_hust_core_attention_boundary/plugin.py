@@ -11,8 +11,6 @@ import threading
 from collections.abc import Callable
 from typing import Any
 
-from . import boundary
-
 ENABLE_ENV = "VLLM_HUST_CORE_ATTENTION_BOUNDARY_ENABLE"
 KILL_SWITCH_ENV = "VLLM_HUST_CORE_ATTENTION_BOUNDARY_KILL_SWITCH"
 EVIDENCE_ENV = "VLLM_HUST_CORE_ATTENTION_BOUNDARY_EVIDENCE"
@@ -79,5 +77,6 @@ def register() -> None:
     core = importlib.import_module("vllm.v1.attention.backends.utils")
     _check_host(core, "split_decodes_prefills_and_extends")
     _check_host(core, "split_decodes_and_prefills")
+    boundary = importlib.import_module(f"{__package__}.boundary")
     boundary.install(core, _replace, _evidence, PATCH_MARKER)
     _evidence("installed", "core_decode_prefill_boundary_search")
